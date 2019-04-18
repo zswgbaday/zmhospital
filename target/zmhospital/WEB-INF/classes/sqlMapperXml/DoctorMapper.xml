@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.hospital.mapper.DoctorMapper">
+
+    <!--开始-->
+    <resultMap id="BaseResultMap" type="com.zm.hospital.model.Doctor">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="desciption" jdbcType="VARCHAR" property="desciption"/>
+        <result column="real_name" jdbcType="VARCHAR" property="realName"/>
+        <result column="sex" jdbcType="BIT" property="sex"/>
+        <result column="department_id" jdbcType="INTEGER" property="departmentId"/>
+        <result column="position" jdbcType="VARCHAR" property="position"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, desciption, real_name, sex, department_id, position
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from his_doctor
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM his_doctor
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insertSelective" parameterType="com.zm.hospital.model.Doctor">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into his_doctor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="desciption != null">
+                desciption,
+            </if>
+            <if test="realName != null">
+                real_name,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="position != null">
+                position,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="desciption != null">
+                #{desciption,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null">
+                #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=BIT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=INTEGER},
+            </if>
+            <if test="position != null">
+                #{position,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.zm.hospital.model.Doctor">
+        update his_doctor
+        <set>
+            <if test="desciption != null">
+                desciption = #{desciption,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null">
+                real_name = #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=BIT},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=INTEGER},
+            </if>
+            <if test="position != null">
+                position = #{position,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!--列表查询条件-->
+    <sql id="query_user_list_where">
+        #什么都没有,就输出个1好了
+        <if test=" condition.size == 0">
+            1
+        </if>
+        <foreach close="" collection="condition" index="key" item="value" open="" separator=" and ">
+            <choose>
+                <when test=" key=='search_name' and value!='' ">
+                    t1.real_name like concat("%",#{value},"%")
+                </when>
+                <when test=" key=='search_depart' and value!='' ">
+                    t1.department_id = #{value}
+                </when>
+                <otherwise>
+                    ${key}=#{value}
+                </otherwise>
+            </choose>
+        </foreach>
+    </sql>
+    <select id="findPageCondition" parameterType="PageInfo" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        his_doctor t1
+        <where>
+            1 and
+            <include refid="query_user_list_where"/>
+        </where>
+        ORDER BY
+        <foreach close="" collection="orderby" index="field" item="order" open="" separator=",">
+            ${field} ${order}
+        </foreach>
+        LIMIT #{from}, #{size}
+    </select>
+    <select id="findPageCount" parameterType="PageInfo" resultType="java.lang.Integer">
+        select count(*) as count
+        from his_doctor t1
+        <where>
+            1 and
+            <include refid="query_user_list_where"/>
+        </where>
+    </select>
+
+    <!--根据科室id获得该所有的医生-->
+    <select id="findDoctorsByDepartId" resultMap="BaseResultMap">
+        SELECT *
+        FROM his_doctor
+        WHERE his_doctor.department_id = #{departmentId}
+    </select>
+</mapper>

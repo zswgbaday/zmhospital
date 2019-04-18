@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<!-- 使用 mvn mybatis-generator:generate -->
+<generatorConfiguration>
+    <!-- 配置文件 -->
+    <properties resource="config.properties"/>
+    <context id="shiroTables" targetRuntime="MyBatis3" defaultModelType="flat">
+
+        <!-- plugin -->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+
+        <!-- 取消生成的代码注释 -->
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!-- 连接配置 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="${jdbc_url}" userId="${jdbc_username}"
+                        password="${jdbc_password}">
+        </jdbcConnection>
+
+        <!-- javaModelGenerator是模型的生成信息，这里将指定这些Java model类的生成路径 -->
+        <javaModelGenerator targetPackage="com.zm.hospital.model"
+                            targetProject="src/main/java">
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- 生成Mapper 配置文件 -->
+        <sqlMapGenerator targetPackage="sqlMapperXml"
+                         targetProject="src/main/resources">
+        </sqlMapGenerator>
+
+        <!--javaClientGenerator是应用接口的生成信息-->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="com.zm.hospital.mapper" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <!-- oracle 使用 schema 对应 用户名称空间 mysql 使用 catalog 对应 数据库 -->
+        <!--<table schema="shiro" tableName="%" enableCountByExample="false"-->
+        <!--enableDeleteByExample="false" enableUpdateByExample="false"-->
+        <!--selectByExampleQueryId="false" enableSelectByExample="false">-->
+        <!--<generatedKey column="id" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
+
+        <!--用户-->
+        <!--<table schema="ssm" tableName="user" domainObjectName="User"-->
+        <!--enableCountByExample="false"-->
+        <!--enableDeleteByExample="false"-->
+        <!--enableUpdateByExample="false"-->
+        <!--selectByExampleQueryId="false"-->
+        <!--enableSelectByExample="false">-->
+        <!--<generatedKey column="id" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
+
+        <!--角色-->
+        <!--<table schema="ssm" tableName="role" domainObjectName="Role"-->
+        <!--enableCountByExample="false"-->
+        <!--enableDeleteByExample="false"-->
+        <!--enableUpdateByExample="false"-->
+        <!--selectByExampleQueryId="false"-->
+        <!--enableSelectByExample="false">-->
+        <!--<selectKey>与主键自增相关-->
+        <!--<generatedKey column="id" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
+
+        <!--用户角色-->
+        <!--<table schema="ssm" tableName="user_role" domainObjectName="UserRole"-->
+        <!--enableCountByExample="false"-->
+        <!--enableDeleteByExample="false"-->
+        <!--enableUpdateByExample="false"-->
+        <!--selectByExampleQueryId="false"-->
+        <!--enableSelectByExample="false">-->
+        <!--</table>    -->
+
+        <!--资源表-->
+        <!--<table schema="ssm" tableName="resources" domainObjectName="Resource"-->
+        <!--enableCountByExample="false"-->
+        <!--enableDeleteByExample="false"-->
+        <!--enableUpdateByExample="false"-->
+        <!--selectByExampleQueryId="false"-->
+        <!--enableSelectByExample="false">-->
+        <!--</table>-->
+
+        <!--资源类型-->
+        <!--<table schema="ssm" tableName="resource_type" domainObjectName="ResourceType"-->
+        <!--enableCountByExample="false"-->
+        <!--enableDeleteByExample="false"-->
+        <!--enableUpdateByExample="false"-->
+        <!--selectByExampleQueryId="false"-->
+        <!--enableSelectByExample="false">-->
+        <!--</table>-->
+
+        <!--角色资源-->
+        <!--<table schema="ssm" tableName="role_resource" domainObjectName="RoleResource"-->
+        <!--enableCountByExample="false"-->
+        <!--enableDeleteByExample="false"-->
+        <!--enableUpdateByExample="false"-->
+        <!--selectByExampleQueryId="false"-->
+        <!--enableSelectByExample="false">-->
+        <!--</table>-->
+
+        <!---->
+        <!--his系统部分-->
+        <!---->
+
+        <!--病人-->
+        <!--<table schema="his_register" tableName="his_patient" domainObjectName="Patient"-->
+               <!--enableCountByExample="false"-->
+               <!--enableDeleteByExample="false"-->
+               <!--enableUpdateByExample="false"-->
+               <!--selectByExampleQueryId="false"-->
+               <!--enableSelectByExample="false">-->
+        <!--</table>-->
+
+        <!--科室-->
+        <!--<table schema="his_register" tableName="his_department" domainObjectName="Department"-->
+               <!--enableCountByExample="false"-->
+               <!--enableDeleteByExample="false"-->
+               <!--enableUpdateByExample="false"-->
+               <!--selectByExampleQueryId="false"-->
+               <!--enableSelectByExample="false">-->
+        <!--</table>-->
+
+        <!--医生-->
+        <!--<table schema="his_register" tableName="his_doctor" domainObjectName="Doctor"-->
+               <!--enableCountByExample="false"-->
+               <!--enableDeleteByExample="false"-->
+               <!--enableUpdateByExample="false"-->
+               <!--selectByExampleQueryId="false"-->
+               <!--enableSelectByExample="false">-->
+            <!--&lt;!&ndash;主键自增&ndash;&gt;-->
+            <!--<generatedKey column="id" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
+
+        <!--挂号-->
+        <table schema="his_register" tableName="his_register" domainObjectName="Register"
+               enableCountByExample="false"
+               enableDeleteByExample="false"
+               enableUpdateByExample="false"
+               selectByExampleQueryId="false"
+               enableSelectByExample="false">
+            <!--主键自增-->
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
+
+    </context>
+</generatorConfiguration>
+
+        <!-- 步骤一：maven导入plugin -->
+        <!-- <plugin>
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-maven-plugin</artifactId>
+            <version>1.3.1</version>
+            <configuration>
+                <verbose>true</verbose>
+                <overwrite>true</overwrite>
+            </configuration>
+        </plugin> -->
+
+        <!-- 步骤二：配置generatorConfig.xml -->
+
+        <!-- 步骤三：mvn mybatis-generator:generate -->
+
+        <!-- 参考链接：http://blog.csdn.net/gufeng672/article/details/27196347 -->
+

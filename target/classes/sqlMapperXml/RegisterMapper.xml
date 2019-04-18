@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zm.hospital.mapper.RegisterMapper">
+    <!--开始-->
+    <resultMap id="BaseResultMap" type="com.zm.hospital.model.Register">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="patient_id" property="patientId" jdbcType="INTEGER"/>
+        <result column="doctor_id" property="doctorId" jdbcType="INTEGER"/>
+        <result column="department_id" property="departmentId" jdbcType="INTEGER"/>
+        <result column="time" property="time" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, patient_id, doctor_id, department_id, time, status, user_id
+    </sql>
+    <!--关联查询的映射-->
+    <resultMap id="BoResultMap" extends="BaseResultMap" type="com.zm.hospital.model.bo.RegisterBo">
+        <association property="patient" javaType="com.zm.hospital.model.Patient">
+            <id property="id" column="patient_id"/>
+            <result property="name" column="p_name"/>
+        </association>
+        <association property="doctor" javaType="com.zm.hospital.model.Doctor">
+            <id property="id" column="patient_id"/>
+            <result property="realName" column="real_name"/>
+        </association>
+        <association property="department" javaType="com.zm.hospital.model.Department">
+            <id property="id" column="department_id"/>
+            <result property="name" column="d_name"/>
+        </association>
+        <association property="user" javaType="com.zm.hospital.model.User">
+            <id property="id" column="user_id"/>
+            <result property="name" column="u_name"/>
+        </association>
+    </resultMap>
+
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from his_register
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM his_register
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insertSelective" parameterType="com.zm.hospital.model.Register">
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into his_register
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="time != null">
+                time,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="patientId != null">
+                #{patientId,jdbcType=INTEGER},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=INTEGER},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=INTEGER},
+            </if>
+            <if test="time != null">
+                #{time,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.zm.hospital.model.Register">
+        update his_register
+        <set>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=INTEGER},
+            </if>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=INTEGER},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=INTEGER},
+            </if>
+            <if test="time != null">
+                time = #{time,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!--bo基本-->
+
+    <!--列表查询条件-->
+    <sql id="table_join">
+        his_register t1 left join his_patient t2 on ( t1.patient_id = t2.id ) left join his_doctor t3 on (t1.doctor_id = t3.id)
+        left join his_department t4 on (t1.department_id = t4.id) left join user t5 on (t1.user_id = t5.id)
+    </sql>
+    <sql id="query_user_list_where">
+        #什么都没有,就输出个1好了
+        <if test=" condition.size == 0">
+            1
+        </if>
+        <foreach close="" collection="condition" index="key" item="value" open="" separator=" and ">
+            <choose>
+                <when test=" key=='search_name' and value!='' ">
+                    t2.name like concat("%",#{value},"%")
+                </when>
+                <when test=" key=='search_doctor' and value!='' ">
+                    t3.real_name like concat("%",#{value},"%")
+                </when>
+                <when test=" key=='search_user' and value!='' ">
+                    t5.name like concat("%",#{value},"%")
+                </when>
+                <when test=" key=='search_depart' and value!='' ">
+                    t1.department_id = #{value}
+                </when>
+                <otherwise>
+                    ${key}=#{value}
+                </otherwise>
+            </choose>
+        </foreach>
+    </sql>
+    <select id="findPageCondition" parameterType="PageInfo" resultMap="BoResultMap">
+        SELECT t1.*, t2.name as p_name, t3.real_name, t4.name as d_name ,t5.name as u_name
+        FROM
+        <include refid="table_join"/>
+        <where>
+            1 and
+            <include refid="query_user_list_where"/>
+        </where>
+        ORDER BY
+        <foreach close="" collection="orderby" index="field" item="order" open="" separator=",">
+            ${field} ${order}
+        </foreach>
+        LIMIT #{from}, #{size}
+    </select>
+    <select id="findPageCount" parameterType="PageInfo" resultType="java.lang.Integer">
+        select count(*) as count
+        from
+        <include refid="table_join"/>
+        <where>
+            1 and
+            <include refid="query_user_list_where"/>
+        </where>
+    </select>
+
+    <!--通过id找到挂号BO-->
+    <select id="findBoById" resultMap="BoResultMap">
+        SELECT t1.*, t2.name as p_name, t3.real_name, t4.name as d_name ,t5.name as u_name
+        FROM
+        <include refid="table_join"/>
+        <where>
+            t1.id=#{id}
+        </where>
+    </select>
+</mapper>

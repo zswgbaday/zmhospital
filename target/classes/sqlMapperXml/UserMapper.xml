@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zm.hospital.mapper.UserMapper">
+    <!--开始-->
+    <resultMap id="BaseResultMap" type="com.zm.hospital.model.User">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="loginname" jdbcType="VARCHAR" property="loginname"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="age" jdbcType="TINYINT" property="age"/>
+        <result column="usertype" jdbcType="INTEGER" property="usertype"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="organization_id" jdbcType="INTEGER" property="organizationId"/>
+        <result column="createdate" jdbcType="TIMESTAMP" property="createdate"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, loginname, email, name, password, sex, age, usertype, status, organization_id,
+        createdate, phone
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM user
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insertSelective" parameterType="com.zm.hospital.model.User">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="loginname != null">
+                loginname,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="usertype != null">
+                usertype,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="organizationId != null">
+                organization_id,
+            </if>
+            <if test="createdate != null">
+                createdate,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="loginname != null">
+                #{loginname,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="age != null">
+                #{age,jdbcType=TINYINT},
+            </if>
+            <if test="usertype != null">
+                #{usertype,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="organizationId != null">
+                #{organizationId,jdbcType=INTEGER},
+            </if>
+            <if test="createdate != null">
+                #{createdate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.zm.hospital.model.User">
+        update user
+        <set>
+            <if test="loginname != null">
+                loginname = #{loginname,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="age != null">
+                age = #{age,jdbcType=TINYINT},
+            </if>
+            <if test="usertype != null">
+                usertype = #{usertype,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="organizationId != null">
+                organization_id = #{organizationId,jdbcType=INTEGER},
+            </if>
+            <if test="createdate != null">
+                createdate = #{createdate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!--直接执行sql语句查询list-->
+    <select id="querylist" resultType="java.util.Map">
+        ${paramsql}
+    </select>
+
+    <!--用户列表查询条件-->
+    <sql id="query_user_list_where">
+        <foreach close="" collection="condition" index="key" item="value" open="" separator=" and ">
+            <choose>
+                <when test=" key==&quot;search_name&quot; and value!=&quot;&quot; ">
+                    and t1.email like concat("%",#{value},"%") OR t1.name like concat("%",#{value},"%")
+                </when>
+                <otherwise>
+                    and ${key}=#{value}
+                </otherwise>
+            </choose>
+        </foreach>
+    </sql>
+    <select id="findUserPageCondition" parameterType="PageInfo" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        user t1
+        <where>
+            1
+            <include refid="query_user_list_where"/>
+        </where>
+        ORDER BY
+        <foreach close="" collection="orderby" index="field" item="order" open="" separator=",">
+            ${field} ${order}
+        </foreach>
+        LIMIT #{from}, #{size}
+    </select>
+    <select id="findUserPageCount" parameterType="PageInfo" resultType="java.lang.Integer">
+        select count(*) as count
+        from user t1
+        <where>
+            1
+            <include refid="query_user_list_where"/>
+        </where>
+    </select>
+
+    <!--通过id找到用户-->
+    <select id="findUserById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user t1
+        WHERE t1.id=#{id}
+    </select>
+
+    <!--通过用户名找到用户-->
+    <select id="findUserByLoginName" parameterType="java.lang.String" resultType="com.zm.hospital.model.User">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        where loginname = #{username}
+    </select>
+</mapper>

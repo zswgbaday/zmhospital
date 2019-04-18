@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zm.hospital.mapper.ResourceMapper">
+    <!--开始-->
+    <resultMap id="BaseResultMap" type="com.zm.hospital.model.Resource">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="pid" property="pid" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="type_id" property="typeId" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="seq" property="seq" jdbcType="INTEGER"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, pid, name, url, description, status, type_id, create_time, seq, icon
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from resources
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM resources
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insertSelective" parameterType="com.zm.hospital.model.Resource">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into resources
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="pid != null">
+                pid,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="url != null">
+                url,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="typeId != null">
+                type_id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="seq != null">
+                seq,
+            </if>
+            <if test="icon != null">
+                icon,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="pid != null">
+                #{pid,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="url != null">
+                #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="typeId != null">
+                #{typeId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="seq != null">
+                #{seq,jdbcType=INTEGER},
+            </if>
+            <if test="icon != null">
+                #{icon,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.zm.hospital.model.Resource">
+        update resources
+        <set>
+            <if test="pid != null">
+                pid = #{pid,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="url != null">
+                url = #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="typeId != null">
+                type_id = #{typeId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="seq != null">
+                seq = #{seq,jdbcType=INTEGER},
+            </if>
+            <if test="icon != null">
+                icon = #{icon,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!--列表查询条件-->
+    <sql id="query_user_list_where">
+        #什么都没有,就输出个1好了
+        <if test=" condition.size == 0">
+            1
+        </if>
+        <foreach close="" collection="condition" index="key" item="value" open="" separator=" and ">
+            <choose>
+                <when test=" key=='search_name' and value!='' ">
+                    t1.name like concat("%",#{value},"%")
+                </when>
+                <when test=" key=='search_res_type' and value!='' ">
+                    t1.type_id = #{value}
+                </when>
+                <otherwise>
+                    ${key}=#{value}
+                </otherwise>
+            </choose>
+        </foreach>
+    </sql>
+    <select id="findPageCondition" parameterType="PageInfo" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        resources t1
+        <where>
+            1 and
+            <include refid="query_user_list_where"/>
+        </where>
+        ORDER BY
+        <foreach close="" collection="orderby" index="field" item="order" open="" separator=",">
+            ${field} ${order}
+        </foreach>
+        LIMIT #{from}, #{size}
+    </select>
+    <select id="findPageCount" parameterType="PageInfo" resultType="java.lang.Integer">
+        select count(*) as count
+        from resources t1
+        <where>
+            1 and
+            <include refid="query_user_list_where"/>
+        </where>
+    </select>
+
+    <!--获得所有的资源列表-->
+    <select id="getAllResourceList" resultMap="BaseResultMap">
+        SELECT *
+        FROM resources
+        WHERE 1
+    </select>
+
+    <!--获得用户所有能访问的资源-->
+    <select id="getUserResources" resultMap="BaseResultMap">
+        SELECT DISTINCT resources.*
+        FROM
+            user_role, role_resource, resources
+        WHERE
+            user_role.role_id = role_resource.role_id
+            AND role_resource.resource_id = resources.id
+            AND user_role.user_id = #{userId,jdbcType=INTEGER}
+    </select>
+
+    <!--获得用户所有关于菜单的资源-->
+    <select id="getUserMenus" resultMap="BaseResultMap">
+        SELECT DISTINCT resources.*
+        FROM
+            user_role, role_resource, resources
+        WHERE
+            user_role.role_id = role_resource.role_id
+            AND role_resource.resource_id = resources.id
+            AND resources.type_id = 1
+            AND user_role.user_id = #{userId,jdbcType=INTEGER}
+    </select>
+
+    <!-- 获得所有菜单,超级管理员用-->
+    <select id="getAllMenus" resultMap="BaseResultMap">
+        SELECT *
+        FROM resources
+        WHERE resources.type_id = 1
+    </select>
+
+
+    <!--缓存支持-->
+    <cache readOnly="true" type="org.mybatis.caches.ehcache.LoggingEhcache">
+        <property name="timeToIdleSeconds" value="10"/>
+        <property name="timeToLiveSeconds" value="30"/>
+        <property name="maxEntriesLocalHeap" value="1000"/>
+        <property name="maxEntriesLocalDisk" value="10000000"/>
+        <property name="memoryStoreEvictionPolicy" value="LRU"/>
+    </cache>
+</mapper>
